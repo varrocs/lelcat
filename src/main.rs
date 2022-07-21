@@ -1,5 +1,5 @@
 use std::f64::consts::PI;
-use std::io::BufRead;
+use std::io::{BufRead, Write};
 
 const FULL_CIRCLE: f64 = 2.0 * PI;
 const ONE_THIRD: f64 = FULL_CIRCLE / 3.0;
@@ -61,8 +61,13 @@ fn step(fi: &mut usize) {
 fn main() {
     let i = std::io::stdin();
     let mut i = i.lock();
+
+    let o = std::io::stdout();
+    let o = o.lock();
+    let mut o = std::io::BufWriter::new(o);
+
     let mut line_buffer = String::new();
-    let mut output_buffer = String::new();
+    // let mut output_buffer = String::new();
     let color_table = fill_color_table();
     let mut idx = 0;
     loop {
@@ -73,14 +78,18 @@ fn main() {
             Ok(_) => {
                 step(&mut idx);
                 let mut line_idx = idx.clone();
-                output_buffer.clear();
+                // output_buffer.clear();
                 line_buffer.chars().for_each(|c| {
                     step(&mut line_idx);
-                    output_buffer.push_str(&color_table[line_idx]);
-                    output_buffer.push(c);
-                    output_buffer.push_str(COLOR_RESET);
+                    // output_buffer.push_str(&color_table[line_idx]);
+                    // output_buffer.push(c);
+                    // output_buffer.push_str(COLOR_RESET);
+                    o.write_all(&color_table[line_idx].as_bytes());
+                    let mut char_buf: [u8; 4] = [0; 4];
+                    c.encode_utf8(&mut char_buf);
+                    o.write(&char_buf);
+                    o.write_all(COLOR_RESET.as_bytes());
                 });
-                print!("{}", output_buffer);
             }
             Err(_) => continue,
         }
