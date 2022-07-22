@@ -3,6 +3,10 @@ name = "lelcat"
 version = "0.1.0"
 edition = "2021"
 
+description="A faster version of lolcat"
+license="MIT"
+repository="https://github.com/varrocs/lelcat/"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
