@@ -67,7 +67,6 @@ fn main() {
     let mut o = std::io::BufWriter::new(o);
 
     let mut line_buffer = String::new();
-    // let mut output_buffer = String::new();
     let color_table = fill_color_table();
     let mut idx = 0;
     loop {
@@ -78,20 +77,18 @@ fn main() {
             Ok(_) => {
                 step(&mut idx);
                 let mut line_idx = idx.clone();
-                // output_buffer.clear();
                 line_buffer.chars().for_each(|c| {
                     step(&mut line_idx);
-                    // output_buffer.push_str(&color_table[line_idx]);
-                    // output_buffer.push(c);
-                    // output_buffer.push_str(COLOR_RESET);
                     o.write_all(&color_table[line_idx].as_bytes());
                     let mut char_buf: [u8; 4] = [0; 4];
-                    c.encode_utf8(&mut char_buf);
-                    o.write(&char_buf);
-                    o.write_all(COLOR_RESET.as_bytes());
+                    let sub_buf = c.encode_utf8(&mut char_buf);
+                    o.write(sub_buf.as_bytes());
+                    //o.write_all(COLOR_RESET.as_bytes());
                 });
             }
             Err(_) => continue,
         }
     }
+    o.write_all(COLOR_RESET.as_bytes());
+    o.flush();
 }
