@@ -1,5 +1,6 @@
 use std::f64::consts::PI;
 use std::io::{BufRead, Write};
+use std::time::SystemTime;
 
 const FULL_CIRCLE: f64 = 2.0 * PI;
 const ONE_THIRD: f64 = FULL_CIRCLE / 3.0;
@@ -58,6 +59,15 @@ fn step(fi: &mut usize) {
     }
 }
 
+fn random_fi() -> usize {
+    let n = SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap()
+        .subsec_nanos();
+
+    n as usize % N
+}
+
 fn main() {
     let i = std::io::stdin();
     let mut i = i.lock();
@@ -68,7 +78,7 @@ fn main() {
 
     let mut line_buffer = String::new();
     let color_table = fill_color_table();
-    let mut idx = 0;
+    let mut idx = random_fi();
     loop {
         line_buffer.clear();
         let r = i.read_line(&mut line_buffer);
@@ -79,16 +89,15 @@ fn main() {
                 let mut line_idx = idx.clone();
                 line_buffer.chars().for_each(|c| {
                     step(&mut line_idx);
-                    o.write_all(&color_table[line_idx].as_bytes());
+                    o.write_all(&color_table[line_idx].as_bytes()).unwrap();
                     let mut char_buf: [u8; 4] = [0; 4];
                     let sub_buf = c.encode_utf8(&mut char_buf);
-                    o.write(sub_buf.as_bytes());
-                    //o.write_all(COLOR_RESET.as_bytes());
+                    o.write(sub_buf.as_bytes()).unwrap();
                 });
             }
             Err(_) => continue,
         }
     }
-    o.write_all(COLOR_RESET.as_bytes());
-    o.flush();
+    o.write_all(COLOR_RESET.as_bytes()).unwrap();
+    o.flush().unwrap();
 }
